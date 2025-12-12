@@ -21,8 +21,8 @@ create table Product (
     name VARCHAR(100) NOT NULL,
     quantity INT NOT NULL,
     price DECIMAL(10,2) NOT NULL,
-    categoryID INT NOT NULL,
-    supplierID INT NOT NULL,
+    categoryId INT NOT NULL,
+    supplierId INT NOT NULL,
 
     CONSTRAINT FK_categoryId FOREIGN KEY (categoryId) REFERENCES Category(categoryId),
     CONSTRAINT FK_supplierId FOREIGN KEY (supplierId) REFERENCES Supplier(supplierId)
@@ -38,7 +38,7 @@ INSERT INTO Category (name)
     values
     ('Fruit'), ('Flower');
 
-INSERT INTO Product (name, quantity, price, categoryid, supplierid)
+INSERT INTO Product (name, quantity, price, categoryId, supplierId)
 VALUES
     ('Apple (Aroma)', 45, 32.90, 1, 3),   
     ('Blueberries', 32, 39.00, 1, 2),     
