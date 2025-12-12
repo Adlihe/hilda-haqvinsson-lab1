@@ -22,11 +22,6 @@ app.set('view engine', 'ejs')
 app.set('views', path.join('src', 'views'))
 
 
-/*app.use((req, res) => {
-    console.log('INSIDE')
-    res.send('HELLOOO!!')
-})*/
-
 // Error handler for 404
 app.use((req, res, next) => {
     const err = new Error('Not Found')
