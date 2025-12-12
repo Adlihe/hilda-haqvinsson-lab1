@@ -4,7 +4,7 @@ import { stdin as input, stdout as output } from 'process'
 import mysql from 'mysql2/promise'
 
 // Run this in terminal
-//node --env-file=.env handle_application/menu.js
+//node --env-file=.env handle_application/cli.js
 
 const rl = readline.createInterface({ input, output })
 
