@@ -5,27 +5,27 @@ USE fruitnflower_db;
 show tables; 
 
 create table Category (
-    categoryID INT AUTO_INCREMENT PRIMARY KEY,
+    categoryId INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
 create table Supplier (
-    supplierID INT AUTO_INCREMENT PRIMARY KEY,
+    supplierId INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     phone VARCHAR(30), 
     email VARCHAR(100)
 );
 
 create table Product (
-    productID INT AUTO_INCREMENT PRIMARY KEY,
+    productId INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     quantity INT NOT NULL,
     price DECIMAL(10,2) NOT NULL,
     categoryID INT NOT NULL,
     supplierID INT NOT NULL,
 
-    CONSTRAINT FK_categoryID FOREIGN KEY (categoryID) REFERENCES Category(categoryID),
-    CONSTRAINT FK_supplierD FOREIGN KEY (supplierID) REFERENCES Supplier(supplierID)
+    CONSTRAINT FK_categoryId FOREIGN KEY (categoryId) REFERENCES Category(categoryId),
+    CONSTRAINT FK_supplierId FOREIGN KEY (supplierId) REFERENCES Supplier(supplierId)
 );
 
 INSERT INTO Supplier (name, phone, email)
@@ -58,14 +58,14 @@ Select * from Product order by quantity desc;
 
 
 SELECT 
-    p.productID AS product_id,
+    p.productId AS productId,
     p.name AS product_name,
     p.quantity,
     p.price,
-    s.supplierID AS supplier_id,
+    s.supplierId AS supplierId,
     s.name AS supplier_name,
     c.name AS category
 FROM Product p
-    JOIN Supplier s ON p.supplierID = s.supplierID
-    JOIN Category c ON p.categoryID = c.categoryID
+    JOIN Supplier s ON p.supplierId = s.supplierId
+    JOIN Category c ON p.categoryId = c.categoryId
 ;

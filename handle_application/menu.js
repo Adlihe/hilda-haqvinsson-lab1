@@ -77,16 +77,16 @@ async function menuChoice3 () {
 
     const sql = `
       SELECT 
-        p.productID AS product_id,
+        p.productId AS product_id,
         p.name AS product_name,
         p.quantity,
         p.price,
-        s.supplierID AS supplier_id,
+        s.supplierId AS supplier_id,
         s.name AS supplier_name,
         c.name AS category
         FROM Product p
-            JOIN Supplier s ON p.supplierID = s.supplierID
-            JOIN Category c ON p.categoryID = c.categoryID
+            JOIN Supplier s ON p.supplierId = s.supplierId
+            JOIN Category c ON p.categoryId = c.categoryId
         ;
         `
 
@@ -105,14 +105,14 @@ async function menuChoice4 () {
     while (!inserted) {
         try {
             const sql = `
-            INSERT INTO Product (name, quantity, price, categoryid, supplierid)
+            INSERT INTO Product (name, quantity, price, categoryId, supplierId)
             VALUES
             (?, ?, ?, ?, ?)
             ;
             `
             const supply_sql = `
             SELECT 
-                supplierID, name
+                supplierId, name
             FROM SUPPLIER
             ;`  
 
@@ -125,7 +125,7 @@ async function menuChoice4 () {
             const quantity = await rl.question('How many should there be in stock: ')
             const price = await rl.question('What is the price of the item: ' )
             console.table(suppliers)    
-            const supplierid = await rl.question('What is the supplier id? ')
+            const supplierId = await rl.question('What is the supplier id? ')
 
             //Make sure the type is actually fruit or flower
             while (!validTypes.includes(type.toLowerCase())) {
@@ -135,17 +135,17 @@ async function menuChoice4 () {
             }
 
             //Assign categoryId accordingly to the type
-            let categoryid
+            let categoryId
             if (type.toLowerCase() === 'fruit') {
-                categoryid = 1
+                categoryId = 1
             } else if (type.toLowerCase() === 'flower') {
-                categoryid = 2
+                categoryId = 2
             } else {
                 console.log('Invalid type!')
                 return
             }
           
-            const [resultset] = await db.query(sql, [name, quantity, price, categoryid, supplierid])
+            const [resultset] = await db.query(sql, [name, quantity, price, categoryId, supplierId])
             console.log('Insert succesful!')
             inserted = true
                 
