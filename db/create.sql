@@ -1,71 +1,97 @@
-DROP DATABASE fruitnflower_db;
-CREATE DATABASE fruitnflower_db;
-USE fruitnflower_db;
+DROP DATABASE travel_wishlist_db;
+CREATE DATABASE travel_wishlist_db;
+USE travel_wishlist_db;
 
-show tables; 
-
-create table Category (
-    categoryId INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE
+create table users (
+    userId INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(10) DEFAULT 'user'
 );
 
-create table Supplier (
-    supplierId INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    phone VARCHAR(30), 
-    email VARCHAR(100)
+create table places (
+    placeId INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    description VARCHAR(200) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    userId INT NOT NULL,
+
+    CONSTRAINT FK_user_places FOREIGN KEY (userId) REFERENCES users(userId)
 );
 
-create table Product (
-    productId INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    quantity INT NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
-    categoryId INT NOT NULL,
-    supplierId INT NOT NULL,
-
-    CONSTRAINT FK_categoryId FOREIGN KEY (categoryId) REFERENCES Category(categoryId),
-    CONSTRAINT FK_supplierId FOREIGN KEY (supplierId) REFERENCES Supplier(supplierId)
-);
-
-INSERT INTO Supplier (name, phone, email)
-    values
-    ('Småland Flora', '0380112233', 'smalland_flora@mail.com'),
-    ('Northern Forest Berries', '090120617', 'north.frst.berries@mail.com'),
-    ('Österlen Fruit Farms', '044556677', 'osterlen_ff@mail.com');
-
-INSERT INTO Category (name)
-    values
-    ('Fruit'), ('Flower');
-
-INSERT INTO Product (name, quantity, price, categoryId, supplierId)
+INSERT INTO users (username, password, role)
 VALUES
-    ('Apple (Aroma)', 45, 32.90, 1, 3),   
-    ('Blueberries', 32, 39.00, 1, 2),     
-    ('Strawberries', 15, 45.50, 1, 2),    
-    ('Pear (Conference)', 23, 38.00, 1, 3),
+    ('admin',   'admin123',   'admin'),
+    ('emma',    'emma123',    'user'),
+    ('liam',    'liam123',    'user'),
+    ('olivia',  'olivia123',  'user');
 
-    ('Lily', 562, 45.60, 2, 1),          
-    ('Sunflower', 99, 25.00, 2, 1),     
-    ('Red Rose', 348, 35.00, 2, 1),      
-    ('Tulip', 63, 89.00, 2, 1);     
 
-    
+INSERT INTO places (title, description, status, userId)
+VALUES
+    ('Paris, France',
+     'Visit the Eiffel Tower and explore local cafés',
+     'wishlist',
+     2),
+
+    ('Kyoto, Japan',
+     'Experience traditional temples and cherry blossoms in the spring',
+     'planned',
+     2),
+
+    ('New York City, USA',
+     'See a Broadway show and explore Manhattan',
+     'visited',
+     3),
+
+    ('Rome, Italy',
+     'Explore ancient ruins and eat authentic Italian food',
+     'wishlist',
+     3),
+
+    ('Reykjavík, Iceland',
+     'See the northern lights and visit hot springs',
+     'planned',
+     4),
+
+    ('Sydney, Australia',
+     'Visit the Opera House and Bondi Beach',
+     'wishlist',
+     1),
+
+    ('Barcelona, Spain',
+     'Enjoy architecture and Mediterranean beaches',
+     'visited',
+     2),
+
+    ('Cape Town, South Africa',
+     'Hike Table Mountain and visit the coastline',
+     'planned',
+     3),
+
+    ('Bangkok, Thailand',
+     'Explore street food and temples',
+     'cancelled',
+     4),
+
+    ('London, United Kingdom',
+     'Visit museums and historic landmarks',
+     'visited',
+     1);
+
+
 
 show tables;
 
-Select * from Product order by quantity desc; 
-
 
 SELECT 
-    p.productId AS productId,
-    p.name AS product_name,
-    p.quantity,
-    p.price,
-    s.supplierId AS supplierId,
-    s.name AS supplier_name,
-    c.name AS category
-FROM Product p
-    JOIN Supplier s ON p.supplierId = s.supplierId
-    JOIN Category c ON p.categoryId = c.categoryId
+    p.placeId AS placeId,
+    p.title AS place,
+    p.description,
+    p.status,
+    u.userId AS userId,
+    u.username AS name,
+    u.role AS role
+FROM places p
+    JOIN users u ON p.userId = u.userId
 ;
