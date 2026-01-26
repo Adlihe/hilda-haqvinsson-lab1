@@ -45,6 +45,7 @@ async function login (username, password) {
         sub: user.username,
         iat: Date.now(),
         username: user.username,
+        userId: user.userId,
         role: user.role,
         permissions: ['read', 'write']
     }
@@ -57,7 +58,7 @@ async function login (username, password) {
 }
 
 async function getUser(username, password) {
-    const sql = `SELECT * FROM user WHERE username = ?`
+    const sql = `SELECT * FROM users WHERE username = ?`
     const [resultset] = await db.query(sql, [
         username
     ])
@@ -72,7 +73,7 @@ async function getUser(username, password) {
         return null
     }
 
-    delete user.password
+    //delete user.password
     return user
 }
 
@@ -86,17 +87,17 @@ router.get('/protected', jwtMiddleware, async (req, res) => {
 
 //Upgrade database with hashed passwords
 router.post('/hash-passwords', async (req, res) => {
-    const sql = `SELECT * FROM user`
+    const sql = `SELECT * FROM users`
     const [allUsers] = await db.query(sql)
 
     for (const user of allUsers) {
         const plainPassword = user.password
         const hashedPassword = await bcrypt.hash(plainPassword, 10)
 
-        const updateSql = `UPDATE user SET password = ? WHERE id = ?`
+        const updateSql = `UPDATE users SET password = ? WHERE userId = ?`
         await db.query(updateSql, [
             hashedPassword,
-            user.id
+            user.userId
         ]
         )
     }
