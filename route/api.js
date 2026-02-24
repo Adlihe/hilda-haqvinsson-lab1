@@ -1,6 +1,6 @@
 import express from 'express'
 import { db } from '../database.js'
-import { validateNumber, validatePositiveNumber } from '../middleware/validation.js'
+import { validateNumber, validatePositiveNumber, validateInput } from '../middleware/validation.js'
 
 export const router = express.Router()
 

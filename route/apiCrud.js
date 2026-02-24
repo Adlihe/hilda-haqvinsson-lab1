@@ -7,8 +7,29 @@ export const router = express.Router()
 
 // Create new place
 router.post('/places', jwtMiddleware, async (req, res) => {
+    const payload = res.locals.payload
+    const role = payload.role
+    const authUserId = payload.userId
+    console.log(authUserId, role)
+
     const place = req.body
-    console.log(place.title)
+
+    if (!place.title || !place.description ||! place.status) {
+        return res.status(400).json({ message: 'title, description and status are required'})
+    }
+
+    const validStatuses = ['wishlist', 'planned', 'visited', 'cancelled']
+    if (!validStatuses.includes(place.status)) {
+        return res.status(400).json({ message: 'Invalid status' })
+    }
+
+    let ownerUserId = authUserId
+    if (role === 'admin' && place.userId !== undefined) {
+        ownerUserId = Number(place.userId)
+        if (!Number.isInteger(ownerUserId) || ownerUserId <= 0) {
+            return res.status(400).json({ message: 'userId must be a positive integer'})
+        }
+    }
     
     const sql = `
     INSERT INTO places (title, description, status, userId)
@@ -18,13 +39,11 @@ router.post('/places', jwtMiddleware, async (req, res) => {
         place.title,
         place.description,
         place.status,
-        place.userId
+        ownerUserId
     ])
     
-    const sql1 = `SELECT * FROM places where placeId = ?`
-    const [newPlace] = await db.query(sql1, [resultset.insertId])
-    
-    res.status(201).json(...newPlace)
+    const [newRows] = await db.query(`SELECT * FROM places WHERE placeId = ?`, [resultset.insertId])
+    return res.status(201).json(newRows[0])
 })
 
 // Update all details on a place
@@ -126,18 +145,49 @@ router.patch('/places/:id', jwtMiddleware, async (req, res) => {
 
 // Delete place
 router.delete('/places/:id', jwtMiddleware, async (req, res) => {
-    const placeId = req.params.id
-    
-    const sql = `DELETE FROM places WHERE placeId = ?`
-    const [resultset] = await db.query(sql, [
-        placeId
-    ])
+  const payload = res.locals.payload
+  const role = payload.role
+  const userId = payload.userId
+  const placeId = Number(req.params.id)
+
+  if (!Number.isInteger(placeId) || placeId <= 0) {
+    return res.status(400).json({ message: 'Invalid placeId' })
+  }
+
+  // Admin: delete by id only
+  if (role === 'admin') {
+    const [resultset] = await db.query(
+      `DELETE FROM places WHERE placeId = ?`,
+      [placeId]
+    )
 
     if (resultset.affectedRows === 0) {
-        return res.status(404).json({message: 'Place not found'})
+      return res.status(404).json({ message: `Place with ID ${placeId} not found` })
     }
-    
-    res.status(204).send()
+
+    return res.status(204).send()
+  }
+
+  // User: must own the place
+  const [rows] = await db.query(
+    `SELECT userId FROM places WHERE placeId = ?`,
+    [placeId]
+  )
+
+  if (rows.length === 0) {
+    return res.status(404).json({ message: `Place with ID ${placeId} not found` })
+  }
+
+  if (rows[0].userId !== userId) {
+    return res.status(403).json({ message: 'Permission denied' })
+  }
+
+  const [resultset] = await db.query(
+    `DELETE FROM places WHERE placeId = ?`,
+    [placeId]
+  )
+
+  return res.status(204).send()
 })
 
 

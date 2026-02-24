@@ -1,1 +1,1 @@
-# hilda-haqvinsson-lab1
+# hilda-haqvinsson-lab2
