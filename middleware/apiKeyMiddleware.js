@@ -3,13 +3,13 @@ export function apiKeyMiddleware (req, res, next) {
     const apiKeyHeader = req.headers['x-api-key']
     
     if (!apiKeyHeader) {
-        res.status(401).json({message: 'Missing API key'})
+        return res.status(401).json({message: 'Missing API key'})
     }
     // Read the API_KEY
     const apiKey = process.env.API_KEY
 
     if (apiKeyHeader !== apiKey) {
-        res.status(403).json({message: 'Invalid API key'})
+        return res.status(403).json({message: 'Invalid API key'})
     }
 
     // Compare and decide if proceed or not

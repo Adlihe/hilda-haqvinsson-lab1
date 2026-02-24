@@ -6,7 +6,7 @@ import { jwtMiddleware } from '../middleware/jwtMiddleware.js'
 export const router = express.Router()
 
 // Create new place
-router.post('/places', async (req, res) => {
+router.post('/places', jwtMiddleware, async (req, res) => {
     const place = req.body
     console.log(place.title)
     
@@ -125,7 +125,7 @@ router.patch('/places/:id', jwtMiddleware, async (req, res) => {
 })
 
 // Delete place
-router.delete('/places/:id', apiKeyMiddleware, async (req, res) => {
+router.delete('/places/:id', jwtMiddleware, async (req, res) => {
     const placeId = req.params.id
     
     const sql = `DELETE FROM places WHERE placeId = ?`

@@ -5,13 +5,13 @@ export function jwtMiddleware (req, res, next) {
     const authHeader = req.headers.authorization
     
     if (!authHeader) {
-        res.status(401).json({message: 'Missing JWT token'})
+        return res.status(401).json({message: 'Missing JWT token'})
     }
 
     const [schema, token] = authHeader.split(' ')
 
     if (schema !== 'Bearer' || !token){
-        res.status(401).json({ message: 'Invalid authorisation.. '})
+        return res.status(401).json({ message: 'Invalid authorisation.. '})
     }
     try {
         const payload = jwt.verify(token, "VERY SECRET KEY")

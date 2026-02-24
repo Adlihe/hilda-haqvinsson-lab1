@@ -1,5 +1,6 @@
 import express from 'express'
 import { db } from '../database.js'
+import { validateNumber, validatePositiveNumber } from '../middleware/validation.js'
 
 export const router = express.Router()
 
@@ -47,7 +48,7 @@ router.get('/places/:id', async (req, res) => {
 
         if (resultset.length === 0) {
             return res.status(404).json({
-                error: 'Product not found'
+                error: 'Place not found'
             })
         }
         return res.json(resultset)
