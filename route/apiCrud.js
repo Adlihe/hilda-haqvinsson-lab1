@@ -10,7 +10,6 @@ router.post('/places', jwtMiddleware, async (req, res) => {
     const payload = res.locals.payload
     const role = payload.role
     const authUserId = payload.userId
-    console.log(authUserId, role)
 
     const place = req.body
 
