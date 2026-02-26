@@ -43,7 +43,6 @@ async function login (username, password) {
     const payload = {
         iss: 'Issuer id', 
         sub: user.username,
-        iat: Date.now(),
         username: user.username,
         userId: user.userId,
         role: user.role,

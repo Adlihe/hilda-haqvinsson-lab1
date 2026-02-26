@@ -5,7 +5,7 @@ import { jwtMiddleware } from '../middleware/jwtMiddleware.js'
 
 export const router = express.Router()
 
-// Create new place
+// Create new place. An admin can update any place, a user can only create their own
 router.post('/places', jwtMiddleware, async (req, res) => {
     const payload = res.locals.payload
     const role = payload.role
@@ -29,6 +29,8 @@ router.post('/places', jwtMiddleware, async (req, res) => {
             return res.status(400).json({ message: 'userId must be a positive integer'})
         }
     }
+
+    console.log(authUserId)
     
     const sql = `
     INSERT INTO places (title, description, status, userId)
@@ -45,42 +47,74 @@ router.post('/places', jwtMiddleware, async (req, res) => {
     return res.status(201).json(newRows[0])
 })
 
-// Update all details on a place
+// Update all details on a place. An admin can update any place, a user can only update their own
 router.put('/places/:id', jwtMiddleware, async (req, res) => {
-    //const userId = res.locals.payload.userId
-    const role = res.locals.payload.role
+    const { role, userId} = res.locals.payload
+    const placeId = Number(req.params.id)
     const place = req.body
-    const placeId = req.params.id
+
+    if (!Number.isInteger(placeId) || placeId <= 0) {
+        return res.status(400).json({ message: 'Invalid placeId' })
+    }
     
-    
-    if (role !== 'admin') {
-        return res.status(403).json({ message: 'Permission denied'})
-    } else {
-        const sql = `
-    UPDATE places
-    SET title = ?, description = ?, status =?
-    WHERE placeId = ?
-    `
-    const [resultset] = await db.query(sql, [
-        place.title,
-        place.description,
-        place.status,
-        placeId
-    ])
-    
+    if (!place.title || !place.description || !place.status){
+        return res.status(400).json({ message: 'title description and status are required'})
+    }
+
+    const validStatuses = ['wishlist', 'planned', 'visited', 'cancelled']
+    if (!validStatuses.includes(place.status)){
+        return res.status(400).json({ message: 'Invalid status'})
+    }
+
+    const isAdmin = role === 'admin'
+
+    try {
+        if (!isAdmin) {
+            const [rows] = await db.query(`SELECT userId FROM places WHERE placeId = ?`, [placeId])
+
+            if (rows.length === 0) {
+                return res.status(404).json({ message: 'Place not found'})
+            }
+
+            if (rows[0].userId !== userId) {
+                return res.status(403).json({ message: 'Permission denied'})
+            }
+        }
+        
+        const sql = isAdmin
+        ?   `
+        UPDATE places
+        SET title = ?, description = ?, status =?
+        WHERE placeId = ?
+        `
+    :   `
+        UPDATE places
+        SET title = ?, description = ?, status =?
+        WHERE placeId = ? AND userId = ?
+        `
+    const values = [place.title, place.description, place.status, placeId]
+    if (!isAdmin) values.push(userId)
+
+    const [resultset] = await db.query(sql, values)
+
     if (resultset.affectedRows === 0) {
         return res.status(404).json({message: 'Place not found'})
     }
     
+
     const sql1 = `SELECT * FROM places where placeId = ?`
     const [updatedPlace] = await db.query(sql1, [placeId])
     
     res.json(updatedPlace[0])
+    } catch (err) {
+        console.log(err)
+    return res.status(500).json({ message: 'Database error' })
     }
+    
     
 })
 
-// Update some details on a place
+// Update some details on a place. An admin can update any place, a user can only update their own
 router.patch('/places/:id', jwtMiddleware, async (req, res) => {
     const userId = res.locals.payload.userId
     const role = res.locals.payload.role
@@ -142,7 +176,7 @@ router.patch('/places/:id', jwtMiddleware, async (req, res) => {
 
 })
 
-// Delete place
+// Delete place. An admin can delete any place, a user can only delete their own
 router.delete('/places/:id', jwtMiddleware, async (req, res) => {
   const payload = res.locals.payload
   const role = payload.role
